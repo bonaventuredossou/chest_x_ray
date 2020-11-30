@@ -8,38 +8,32 @@ from keras.layers.core import Dense
 from keras.layers.core import Flatten
 from keras.models import Sequential
 
-class FSER20_1:
+class XRAY:
     @staticmethod
     def build(width, height, depth, classes):
         # initialize the model
         model = Sequential()
-        inputShape = (height, width, depth) # (64, 64, 1)
+        inputShape = (height, width, depth) # (64, 64, 1) since the pictures are in greyscale
 
         # if we are using "channels first", update the input shape
         if K.image_data_format() == "channels_first":
             inputShape = (depth, height, width)
 
-        # first set of CONV => RELU => POOL layers
+        # (8 filters, kernel_size = (2, 2), zero_padding, input_shape)
         model.add(Conv2D(8, (2, 2), padding="zero_padding",
                          input_shape=inputShape))
         model.add(Activation("relu"))
         model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
  
-        # second set of CONV => RELU => POOL layers
         model.add(Conv2D(100, (2, 2), padding="same"))
         model.add(Activation("relu"))
         model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
         model.add(Dropout(0.2))
 
-        # third set of CONV => RELU => POOL layers
         model.add(Conv2D(200, (2, 2), padding="same"))
         model.add(Activation("relu"))
         model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
 
-        # Trying the idea of Independent component
-        # model.add(Dropout(0.2))
-
-        # first (and only) set of FC => RELU layers
         model.add(Flatten())
         model.add(Dense(50))
         model.add(Activation("relu"))
